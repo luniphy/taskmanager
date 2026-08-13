@@ -5,13 +5,14 @@
 
 # Task Manager
 
-A small project for learning **object-oriented programming (OOP)** through a simple task manager console app.
+A small project for learning **Object-Oriented Programming (OOP)** & **SQL** better through a simple task manager console app.
 
 ## Focus
 - Classes and objects
 - Encapsulation
 - Inheritance
 - Polymorphism
+- SQL
 
 ## About the App
 The app is designed to manage tasks in a simple and structured way. Users can create tasks, update their details, mark them as completed, and organize them by filtering/sorting.
@@ -44,7 +45,7 @@ docker build -t taskmanager .
 
 ### Pull from Docker Hub
 
-A prebuilt image is also available on [Docker Hub](https://hub.docker.com/r/luniphys/taskmanager):
+A prebuilt image is also available on [Docker Hub](https://hub.docker.com/r/luniphy/taskmanager):
 
 ```bash
 docker pull luniphys/taskmanager
@@ -59,3 +60,7 @@ docker run --rm -it taskmanager
 ### Notes
 
 - Run the container in interactive mode: ```-it```
+
+## License
+
+MIT © [luniphy](https://github.com/luniphy)
