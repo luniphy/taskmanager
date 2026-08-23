@@ -1,5 +1,7 @@
 data/tasks.json
 data/tasks_example.json
+data/tasks_sql.db
+data/tasks_sql_example.db
 
 src/taskmanager
 
