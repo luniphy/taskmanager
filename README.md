@@ -86,13 +86,13 @@ taskmanager/
 Compile the file:
 
 ```bash
-g++ src/taskmanager.cpp -o src/taskmanager -lsqlite3
+g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3
 ```
 
 Run the file:
 
 ```bash
-./src/taskmanager
+./src/main
 ```
 
 ## Docker
