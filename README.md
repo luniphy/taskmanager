@@ -5,16 +5,9 @@
 
 # Task Manager
 
-A small project for learning **Object-Oriented Programming** & **SQL** better through a simple task manager console app based on a **SQLITE** database.
+A small console based task manager using a **SQLite** database.
 
-### Focus
-
-- Classes and objects
-- Encapsulation
-- Enums
-- User input handling
-- Rule of Five
-- SQL
+The project was created to practice object-oriented programming, enums, user input validation, file separation and SQL database operations.
 
 ### Example
 
@@ -49,41 +42,63 @@ Task Manager:
 - [Overview](#overview)
 - [Features](#features)
 - [Project Structure](#project-structure)
+- [Requirements](#requirements)
 - [Build & Run](#build--run)
 - [Docker](#docker)
 - [License](#license)
 
 ## Overview
 
-The app is designed to manage tasks in a simple and structured way in a local SQLite database. Users can create tasks, update their details, mark them as completed and organize them by filtering/sorting.
+The app is designed to manage tasks in a simple and structured way in a local SQLite database. The application allows users to create, view, find, update, remove, filter and sort tasks.
 
 ## Features
 
 - **List tasks** – Display all tasks stored in the database.
-- **Add task** – Create a new task by entering title, category, due date, priority & status. Titles must be unique.
-- **Remove task** – Delete a task by title.
-- **Find task** – Look up a task by title.
+- **Add task** – Create a task by entering a (unique) title, category, due date, priority & status.
+- **Remove task** – Delete an existing task by title.
+- **Find task** – Search for a task by title.
 - **Change priority / status** – Update the priority (`Low` / `Medium` / `High`) or status (`Open` / `InProgress` / `Done`) of an existing task.
 - **Filter by category** – Show only tasks that belong to a given category.
 - **Filter by priority** – Show only tasks at a given priority level.
 - **Filter by status** – Show only tasks with a given status.
-- **Sort tasks** – Order the task list alphabetically by title, by category, by priority (High → Low), or by status (Open → Done).
-- **Input validation** – due dates are validated including leap-year awareness; priority and status inputs are checked against allowed values (case-insensitive); every prompt allows `0` to cancel and return to the main menu.
-- **JSON export** – after every action the full task list is written to `data/tasks.json`.
-- **SQLite database** - The database `data/tasks_sql.db` is created automatically on the first run.
+- **Sort tasks** – Sort tasks by title, by category, by priority, or by status.
+- **Date validation** – Due dates are validated including leap-year awareness.
+- **Input cancellation** - Every prompt allows `0` to cancel and return to the main menu.
+- **JSON export** – Export tasks to `data/tasks.json`.
+- **SQLite database** - Stores tasks in `data/tasks_sql.db`.
+- **Separated source files** - Separate task model, database manager and main loop.
 
 ## Project structure
 
 ```
 taskmanager/
-├── data/                    # auto-generated & updated .db & .json files
+├── data/                   # auto-generated & updated database
+│   ├── tasks.json          # JSON export of tasks
+│   └── tasks_sql.db        # SQLite database
 └── src/
-    ├── taskmanager.cpp      # source code — Task & TaskManager classes, main loop
+    ├── task.hpp            # Declares the Task class, Priority, Status and conversion functions.
+    ├── task.cpp            # Implements the Task class and conversion functions.
+    ├── taskmanager.hpp     # Declares the TaskManager class.
+    ├── taskmanager.hpp     # Implements SQLite database operations for TaskManager.
+    └── main.cpp            # Contains the command-line interface, menu loop, input validation, and JSON export.
 ```
+
+## Requirements
+
+- C++ compiler with C++17 support
+- SQLite development libraries
+- SQLite runtime library
 
 ## Build & Run
 
-Compile the file:
+On Debian/ Ubuntu, install the dependencies with:
+
+```bash
+sudo apt-get update
+sudo apt-get install g++ libsqlite3-dev
+```
+
+Compile from root:
 
 ```bash
 g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3
@@ -97,7 +112,10 @@ Run the file:
 
 ## Docker
 
-A Dockerfile is included to provide a reproducible runtime environment.
+A Dockerfile is included to provide a reproducible runtime environment. The Dockerfile uses two stages:
+
+1. A builder stage that installs the SQLite development package and compiles the program.
+2. A runtime stage that installs the SQLite runtime library and runs the compiled executable.
 
 ### Build the image
 
@@ -124,7 +142,7 @@ docker run --rm -it -v $(pwd)/data:/app/data taskmanager
 ### Notes
 
 - Run the container in interactive mode: `-it`
-- The database will be saved in `data/` as a `.db` and `.json` file.
+- The volume mount keeps the database and JSON file in the local `data/` directory after the container stops.
 
 ## License
 
