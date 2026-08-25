@@ -5,13 +5,11 @@
 
 # Task Manager
 
-A small console based task manager using a **SQLite** database.
-
-The project was created to practice object-oriented programming, enums, user input validation, file separation and SQL database operations.
+A small console based task manager app using a **SQLite** database. This is a learning project to practice object-oriented programming, enums, file separation and SQL database operations.
 
 ### Example
 
-```bash
+```text
 --------------------------------------------------------------------------
 Tasks:
 
@@ -42,28 +40,27 @@ Task Manager:
 - [Overview](#overview)
 - [Features](#features)
 - [Project Structure](#project-structure)
-- [Requirements](#requirements)
 - [Build & Run](#build--run)
 - [Docker](#docker)
 - [License](#license)
 
 ## Overview
 
-The app is designed to manage tasks in a simple and structured way in a local SQLite database. The application allows users to create, view, find, update, remove, filter and sort tasks.
+The app is designed to manage tasks in a simple and structured way in a local SQLite database. It allows users to create, view, find, update, remove, filter and sort tasks.
 
 ## Features
 
 - **List tasks** – Display all tasks stored in the database.
 - **Add task** – Create a task by entering a (unique) title, category, due date, priority & status.
-- **Remove task** – Delete an existing task by title.
+- **Remove task** – Delete an existing task.
 - **Find task** – Search for a task by title.
-- **Change priority / status** – Update the priority (`Low` / `Medium` / `High`) or status (`Open` / `InProgress` / `Done`) of an existing task.
+- **Change priority / status** – Update the priority (`Low` / `Medium` / `High`) or status (`Open` / `InProgress` / `Done`) of a task.
 - **Filter by category** – Show only tasks that belong to a given category.
-- **Filter by priority** – Show only tasks at a given priority level.
-- **Filter by status** – Show only tasks with a given status.
-- **Sort tasks** – Sort tasks by title, by category, by priority, or by status.
-- **Date validation** – Due dates are validated including leap-year awareness.
-- **Input cancellation** - Every prompt allows `0` to cancel and return to the main menu.
+- **Filter by priority** – Show only tasks of a given priority level.
+- **Filter by status** – Show only tasks of a given status.
+- **Sort tasks** – Sort tasks by title, category, priority or status.
+- **Date validation** – Due dates are validated including leap-years.
+- **Input cancellation** - Every prompt allows to cancel and return to the main menu.
 - **JSON export** – Export tasks to `data/tasks.json`.
 - **SQLite database** - Stores tasks in `data/tasks_sql.db`.
 - **Separated source files** - Separate task model, database manager and main loop.
@@ -83,20 +80,7 @@ taskmanager/
     └── main.cpp            # Contains the command-line interface, menu loop, input validation, and JSON export.
 ```
 
-## Requirements
-
-- C++ compiler with C++17 support
-- SQLite development libraries
-- SQLite runtime library
-
 ## Build & Run
-
-On Debian/ Ubuntu, install the dependencies with:
-
-```bash
-sudo apt-get update
-sudo apt-get install g++ libsqlite3-dev
-```
 
 Compile from root:
 
@@ -112,10 +96,7 @@ Run the file:
 
 ## Docker
 
-A Dockerfile is included to provide a reproducible runtime environment. The Dockerfile uses two stages:
-
-1. A builder stage that installs the SQLite development package and compiles the program.
-2. A runtime stage that installs the SQLite runtime library and runs the compiled executable.
+A Dockerfile is included to provide a reproducible runtime environment.
 
 ### Build the image
 
@@ -142,7 +123,7 @@ docker run --rm -it -v $(pwd)/data:/app/data taskmanager
 ### Notes
 
 - Run the container in interactive mode: `-it`
-- The volume mount keeps the database and JSON file in the local `data/` directory after the container stops.
+- The volume mount preserves the database and JSON file in the local `data/` directory after the container stops.
 
 ## License
 
