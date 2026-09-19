@@ -1,3 +1,4 @@
+[![CD](https://github.com/luniphy/taskmanager/actions/workflows/cd.yml/badge.svg)](https://github.com/luniphy/taskmanager/actions/workflows/cd.yml)
 ![C++](https://img.shields.io/badge/C++-%2300599C.svg?logo=c%2B%2B&logoColor=white)
 [![SQLite](https://img.shields.io/badge/SQLite-%2307405e.svg?logo=sqlite&logoColor=white)](https://sqlite.org/)
 [![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?&logo=docker&logoColor=white)](https://hub.docker.com/r/luniphys/taskmanager)
