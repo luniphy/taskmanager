@@ -1,4 +1,5 @@
 src/main
 data/tasks.json
 data/tasks_sql.db
+.github/workflows/dockerhub_token.txt
 .vscode/
