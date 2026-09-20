@@ -28,14 +28,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image
+      - name: Build image locally
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/taskmanager:latest
-            ghcr.io/${{ github.repository_owner }}/taskmanager:latest
+          push: false
+          tags: taskmanager:scan
 
       - name: Scan image for vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0
@@ -44,3 +42,12 @@ jobs:
           format: table
           exit-code: '0'
           severity: HIGH,CRITICAL
+
+      - name: Push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/taskmanager:latest
+            ghcr.io/${{ github.repository_owner }}/taskmanager:latest
