@@ -42,5 +42,5 @@ jobs:
         with:
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/taskmanager:latest
           format: table
-          exit-code: '0' # report only. make '1' to block upload
+          exit-code: '1'
           severity: HIGH,CRITICAL

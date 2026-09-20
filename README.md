@@ -1,7 +1,7 @@
 [![CD](https://github.com/luniphy/taskmanager/actions/workflows/cd.yml/badge.svg)](https://github.com/luniphy/taskmanager/actions/workflows/cd.yml)
 ![C++](https://img.shields.io/badge/C++-%2300599C.svg?logo=c%2B%2B&logoColor=white)
 [![SQLite](https://img.shields.io/badge/SQLite-%2307405e.svg?logo=sqlite&logoColor=white)](https://sqlite.org/)
-[![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?&logo=docker&logoColor=white)](https://hub.docker.com/r/luniphys/taskmanager)
+[![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?&logo=docker&logoColor=white)](https://hub.docker.com/r/luniphy/taskmanager)
 [![GHCR](https://img.shields.io/badge/GHCR-181717?logo=github)](https://github.com/luniphy/taskmanager/pkgs/container/taskmanager)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -114,10 +114,10 @@ docker build -t taskmanager .
 
 ### Pull from Docker Hub / GHCR
 
-Prebuilt images are also available on [Docker Hub](https://hub.docker.com/r/luniphys/taskmanager):
+Prebuilt images are also available on [Docker Hub](https://hub.docker.com/r/luniphy/taskmanager):
 
 ```bash
-docker pull luniphys/taskmanager:latest
+docker pull luniphy/taskmanager:latest
 ```
 
 And on the [GitHub Container Registry](https://github.com/luniphy/taskmanager/pkgs/container/taskmanager):
@@ -134,7 +134,7 @@ docker run --rm -it -v $(pwd)/data:/app/data taskmanager
 
 ### Notes
 
-- To run pulled images, use `luniphys/taskmanager` or `ghcr.io/luniphy/taskmanager` respectively.
+- To run pulled images, use `luniphy/taskmanager` or `ghcr.io/luniphy/taskmanager` respectively.
 - Run the container in interactive mode: `-it`
 - The volume mount preserves the database and JSON file in the local `data/` directory after the container stops.
 
