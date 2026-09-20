@@ -66,7 +66,7 @@ The app is designed to manage tasks in a simple and structured way in a local SQ
 - **JSON export** – Export tasks to `data/tasks.json`.
 - **SQLite database** - Stores tasks in `data/tasks_sql.db`.
 - **Separated source files** - Separate task model, database manager and main loop.
-- **Continuous Deployment (CD)**: Automated image pushes to Docker Hub / GHCR with vulnerability check
+- **Continuous Deployment (CD)**: Automated image pushes to Docker Hub / GHCR with vulnerability scan
 
 ## Project structure
 
