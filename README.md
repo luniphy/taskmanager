@@ -72,15 +72,16 @@ The app is designed to manage tasks in a simple and structured way in a local SQ
 
 ```
 taskmanager/
-├─ data/                    # Example files are given
-│  ├─ tasks_sql.db          # SQLite database
-│  └─ tasks.json            # JSON export
+├─ .github/workflows/cd.yml     # CD workflow
+├─ data/                        # Example files are given
+│  ├─ tasks_sql.db              # SQLite database
+│  └─ tasks.json                # JSON export
 ├─ src/
-│  ├─ main.cpp              # Contains the CLI, menu loop, input validation and JSON export.
-│  ├─ task.cpp              # Implements the Task class and the conversion functions.
-│  ├─ task.hpp              # Declaration of the Task class.
-│  ├─ taskmanager.cpp       # Implements SQLite operations for the Taskmanager class.
-│  └─ taskmanager.hpp       # Declaration of the Taskmanager class.
+│  ├─ main.cpp                  # Contains the CLI, menu loop, input validation and JSON export.
+│  ├─ task.cpp                  # Implements the Task class and the conversion functions.
+│  ├─ task.hpp                  # Declaration of the Task class.
+│  ├─ taskmanager.cpp           # Implements SQLite operations for the Taskmanager class.
+│  └─ taskmanager.hpp           # Declaration of the Taskmanager class.
 ├─ Dockerfile
 ├─ LICENSE
 └─ README.md
