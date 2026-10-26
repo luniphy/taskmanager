@@ -143,3 +143,10 @@ docker run --rm -it -v $(pwd)/data:/app/data taskmanager
 ## License
 
 MIT © [luniphy](https://github.com/luniphy)
+
+
+
+
+
+
+// DONT USE MONGODB IN DOCKER CONTAINER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

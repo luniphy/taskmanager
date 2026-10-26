@@ -6,6 +6,10 @@
 #include <string>
 #include <vector>
 
+#include <mongocxx/client.hpp>
+#include <mongocxx/instance.hpp>
+#include <mongocxx/uri.hpp>
+
 
 struct sqlite3;
 
@@ -13,6 +17,8 @@ struct sqlite3;
 class TaskManager {
 	private:
 		sqlite3* db;
+		mongocxx::client mongoClient;
+		mongocxx::collection mongoCollection;
 
 	public:
 		TaskManager();

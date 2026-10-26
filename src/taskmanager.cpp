@@ -5,9 +5,28 @@
 #include <sqlite3.h>
 #include <stdexcept>
 
+#include <bsoncxx/builder/basic/document.hpp>
+#include <bsoncxx/builder/basic/kvp.hpp>
+
+using bsoncxx::builder::basic::make_document;
+using bsoncxx::builder::basic::kvp;
+
+namespace {
+    mongocxx::client makeMongoClient() {
+        static mongocxx::instance instance{};
+        const char* uriEnv = std::getenv("MONGODB_URI");
+        if (!uriEnv) {
+            throw std::runtime_error("MONGODB_URI environment variable not set.");
+        }
+        return mongocxx::client{mongocxx::uri{uriEnv}};
+    }
+}
 
 
-TaskManager::TaskManager() {
+TaskManager::TaskManager()
+    : mongoClient(makeMongoClient())
+    , mongoCollection(mongoClient["taskmanager"]["tasks"])    
+{
     if (sqlite3_open("./data/tasks_sql.db", &db) != SQLITE_OK) {
         std::string errorMsg = sqlite3_errmsg(db);
         sqlite3_close(db);
