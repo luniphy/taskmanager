@@ -1,6 +1,7 @@
 [![CD](https://github.com/luniphy/taskmanager/actions/workflows/cd.yml/badge.svg)](https://github.com/luniphy/taskmanager/actions/workflows/cd.yml)
 ![C++](https://img.shields.io/badge/C++-%2300599C.svg?logo=c%2B%2B&logoColor=white)
 [![SQLite](https://img.shields.io/badge/SQLite-%2307405e.svg?logo=sqlite&logoColor=white)](https://sqlite.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?&logo=docker&logoColor=white)](https://hub.docker.com/r/luniphy/taskmanager)
 [![GHCR](https://img.shields.io/badge/GHCR-181717?logo=github)](https://github.com/luniphy/taskmanager/pkgs/container/taskmanager)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -92,7 +93,7 @@ taskmanager/
 Compile from root:
 
 ```bash
-g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3
+g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3 $(pkg-config --cflags --libs libmongocxx1 libbsoncxx1) ./src/main
 ```
 
 Run the file:

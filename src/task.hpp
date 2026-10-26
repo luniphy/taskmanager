@@ -32,7 +32,7 @@ class Task {
 };
 
 
-Priority strToPrio(const std::string& inp);
-Status strToStat(const std::string& inp);
+Priority StrToPrio(const std::string& inp);
+Status StrToStat(const std::string& inp);
 std::string PrioToStr (const Priority& prio);
 std::string StatToStr (const Status& stat);

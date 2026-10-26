@@ -38,7 +38,7 @@ void Task::print() const {
 
 
 
-Priority strToPrio(const std::string& inp) {
+Priority StrToPrio(const std::string& inp) {
 	std::string lower = inp;
 	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 	if (lower == "low") {
@@ -53,7 +53,7 @@ Priority strToPrio(const std::string& inp) {
 	throw std::invalid_argument("\033[31mInvalid Priority:\033[0m " + inp);
 }
 
-Status strToStat(const std::string& inp) {
+Status StrToStat(const std::string& inp) {
 	std::string lower = inp;
 	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 	if (lower == "open") {

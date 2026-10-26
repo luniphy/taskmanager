@@ -29,12 +29,12 @@ class TaskManager {
 		std::vector<std::string> getAvailablePriorities() const;
 		std::vector<std::string> getAvailableStatuses() const;
 
-		bool addTask(const Task& task);
-		bool removeTask(const std::string& title);
+		bool addTask(const Task& task, bool mongoUpload);
+		bool removeTask(const std::string& title, bool mongoUpload);
 		std::optional<Task> findTask(const std::string& title) const;
 
-		bool updatePriority(const std::string& title, const Priority& priority) const;
-		bool updateStatus(const std::string& title, const Status& status) const;
+		bool updatePriority(const std::string& title, const Priority& priority, bool mongoUpload) const;
+		bool updateStatus(const std::string& title, const Status& status, bool mongoUpload) const;
 
 		std::vector<Task> filterByCategory(const std::string& cat) const;
 		std::vector<Task> filterByPriority(Priority prio) const;

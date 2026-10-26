@@ -127,7 +127,7 @@ std::vector<std::string> TaskManager::getAvailableStatuses() const {
 }
 
 
-bool TaskManager::addTask(const Task& task) {
+bool TaskManager::addTask(const Task& task, bool mongoUpload) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         INSERT INTO tasks (title, category, dueDate, priority, status) VALUES (?, ?, ?, ?, ?);
@@ -150,9 +150,19 @@ bool TaskManager::addTask(const Task& task) {
         return false;
     }
     return result == SQLITE_DONE;
+
+    // *************************MongoDB*********************************
+    // db.taskmanager.InsertOne({
+    // title: task.getTitle(),
+    // category: task.getCategory(),
+    // dueDate: new Date(task.getDueDate())
+    // priority: PrioToStr(task.getPriority())
+    // status: StatToStr(task.getStatus())
+    // })
+    if (mongoUpload) {}
 }
 
-bool TaskManager::removeTask(const std::string& title) {
+bool TaskManager::removeTask(const std::string& title, bool mongoUpload) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         DELETE FROM tasks WHERE title = ?;
@@ -167,6 +177,12 @@ bool TaskManager::removeTask(const std::string& title) {
     sqlite3_finalize(stmt);
 
     return result == SQLITE_DONE && sqlite3_changes(db) > 0;
+
+    // *************************MongoDB*********************************
+    // db.taskmanager.deleteOne({
+    // title: title
+    // })
+    if (mongoUpload) {}
 }
 
 
@@ -197,7 +213,7 @@ std::optional<Task> TaskManager::findTask(const std::string& title) const {
 }
 
 
-bool TaskManager::updatePriority(const std::string& title, const Priority& priority) const {
+bool TaskManager::updatePriority(const std::string& title, const Priority& priority, bool mongoUpload) const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         UPDATE tasks SET priority = ? WHERE title = ?;
@@ -213,9 +229,16 @@ bool TaskManager::updatePriority(const std::string& title, const Priority& prior
     sqlite3_finalize(stmt);
 
     return result == SQLITE_DONE && sqlite3_changes(db) > 0;
+
+    // *************************MongoDB*********************************
+    // db.taskmanager.updateOne(
+    // {title, title},
+    // {priority: PrioToStr(priority)}
+    // )
+    if (mongoUpload) {}
 }
 
-bool TaskManager::updateStatus(const std::string& title, const Status& status) const {
+bool TaskManager::updateStatus(const std::string& title, const Status& status, bool mongoUpload) const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         UPDATE tasks SET status = ? WHERE title = ?;
@@ -231,6 +254,13 @@ bool TaskManager::updateStatus(const std::string& title, const Status& status) c
     sqlite3_finalize(stmt);
 
     return result == SQLITE_DONE && sqlite3_changes(db) > 0;
+
+    // *************************MongoDB*********************************
+    // db.taskmanager.updateOne(
+    // {title, title},
+    // {status: StatToStr(status)}
+    // )
+    if (mongoUpload) {}
 }
 
 
