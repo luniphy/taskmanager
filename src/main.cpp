@@ -202,6 +202,8 @@ int main() {
 
 		TaskManager taskmanager;
 
+		bool mongoUpload = false;
+
 		// Test examples
 		/*
 		Task interview("job interview", "work", "25-09-2026", Priority::High, Status::Open);
@@ -216,7 +218,6 @@ int main() {
 
 
 		int inpChoice;
-		bool mongoUpload = false;
 		std::string title, category, dueDate, priorityStr, statusStr, inpMenu, inpChange, inpSort;
 		std::string emptyStr = "";
 		std::vector<std::string> PrioStrVec   = {"Low", "Medium", "High"};

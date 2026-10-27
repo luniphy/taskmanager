@@ -6,7 +6,7 @@ COPY . /app/
 
 RUN apt-get update && apt-get install -y --no-install-recommends libsqlite3-dev && rm -rf /var/lib/apt/lists/*
 
-RUN g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3
+RUN g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3 $(pkg-config --cflags --libs libmongocxx1 libbsoncxx1)
 
 FROM debian:stable-slim
 

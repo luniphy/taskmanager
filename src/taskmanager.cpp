@@ -4,9 +4,12 @@
 #include <algorithm>
 #include <sqlite3.h>
 #include <stdexcept>
+#include <sstream>
+#include <iomanip>
 
 #include <bsoncxx/builder/basic/document.hpp>
 #include <bsoncxx/builder/basic/kvp.hpp>
+#include <mongocxx/exception/exception.hpp>
 
 using bsoncxx::builder::basic::make_document;
 using bsoncxx::builder::basic::kvp;
@@ -19,6 +22,18 @@ namespace {
             throw std::runtime_error("MONGODB_URI environment variable not set.");
         }
         return mongocxx::client{mongocxx::uri{uriEnv}};
+    }
+
+    bsoncxx::types::b_date dueDateToBsonDate(const std::string& dueDate) {
+        std::tm tm{};
+        std::istringstream ss(dueDate);
+        ss >> std::get_time(&tm, "%d-%m-%Y");
+        if (ss.fail()) {
+            throw std::invalid_argument("Invalid dueDate format: " + dueDate);
+        }
+
+        std::time_t time = timegm(&tm); // UTC
+        return bsoncxx::types::b_date{std::chrono::system_clock::from_time_t(time)};
     }
 }
 
@@ -168,17 +183,24 @@ bool TaskManager::addTask(const Task& task, bool mongoUpload) {
         std::cout << "\n\033[31mTask '" << task.getTitle() << "' already exists.\033[0m" << std::endl;
         return false;
     }
-    return result == SQLITE_DONE;
 
-    // *************************MongoDB*********************************
-    // db.taskmanager.InsertOne({
-    // title: task.getTitle(),
-    // category: task.getCategory(),
-    // dueDate: new Date(task.getDueDate())
-    // priority: PrioToStr(task.getPriority())
-    // status: StatToStr(task.getStatus())
-    // })
-    if (mongoUpload) {}
+    // MongoDB
+    if (mongoUpload) {
+        try {
+            mongoCollection.insert_one(make_document(
+                kvp("title", task.getTitle()),
+                kvp("category", task.getCategory()),
+                kvp("dueDate", dueDateToBsonDate(task.getDueDate())),
+                kvp("priority", PrioToStr(task.getPriority())),
+                kvp("status", StatToStr(task.getStatus()))
+            ));
+        }
+        catch (const mongocxx::exception& e) {
+            std::cerr << "MongoDB insert failed: " << e.what() << std::endl;
+        }
+    }
+
+    return result == SQLITE_DONE;
 }
 
 bool TaskManager::removeTask(const std::string& title, bool mongoUpload) {
@@ -195,13 +217,19 @@ bool TaskManager::removeTask(const std::string& title, bool mongoUpload) {
     int result = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
 
-    return result == SQLITE_DONE && sqlite3_changes(db) > 0;
+    // MongoDB
+    if (mongoUpload) {
+        try {
+            mongoCollection.delete_one(make_document(
+                kvp("title", title)
+            ));
+        }
+        catch (const mongocxx::exception& e) {
+            std::cerr << "MongoDB delete failed: " << e.what() << std::endl;
+        }
+    }
 
-    // *************************MongoDB*********************************
-    // db.taskmanager.deleteOne({
-    // title: title
-    // })
-    if (mongoUpload) {}
+    return result == SQLITE_DONE && sqlite3_changes(db) > 0;
 }
 
 
@@ -232,7 +260,7 @@ std::optional<Task> TaskManager::findTask(const std::string& title) const {
 }
 
 
-bool TaskManager::updatePriority(const std::string& title, const Priority& priority, bool mongoUpload) const {
+bool TaskManager::updatePriority(const std::string& title, const Priority& priority, bool mongoUpload) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         UPDATE tasks SET priority = ? WHERE title = ?;
@@ -247,17 +275,23 @@ bool TaskManager::updatePriority(const std::string& title, const Priority& prior
     int result = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
 
+    // MongoDB
+    if (mongoUpload) {
+        try {
+            mongoCollection.update_one(
+                make_document(kvp("title", title)),
+                make_document(kvp("$set", make_document(kvp("priority", PrioToStr(priority)))))
+            );
+        }
+        catch (const mongocxx::exception& e) {
+            std::cerr << "MongoDB update priority failed: " << e.what() << std::endl;
+        }
+    }
+    
     return result == SQLITE_DONE && sqlite3_changes(db) > 0;
-
-    // *************************MongoDB*********************************
-    // db.taskmanager.updateOne(
-    // {title, title},
-    // {priority: PrioToStr(priority)}
-    // )
-    if (mongoUpload) {}
 }
 
-bool TaskManager::updateStatus(const std::string& title, const Status& status, bool mongoUpload) const {
+bool TaskManager::updateStatus(const std::string& title, const Status& status, bool mongoUpload) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         UPDATE tasks SET status = ? WHERE title = ?;
@@ -272,14 +306,20 @@ bool TaskManager::updateStatus(const std::string& title, const Status& status, b
     int result = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
 
-    return result == SQLITE_DONE && sqlite3_changes(db) > 0;
+    // MongoDB
+    if (mongoUpload) {
+        try {
+            mongoCollection.update_one(
+                make_document(kvp("title", title)),
+                make_document(kvp("$set", make_document(kvp("status", StatToStr(status)))))
+            );
+        }
+        catch (const mongocxx::exception& e) {
+            std::cerr << "MongoDB update status failed: " << e.what() << std::endl;
+        }
+    }
 
-    // *************************MongoDB*********************************
-    // db.taskmanager.updateOne(
-    // {title, title},
-    // {status: StatToStr(status)}
-    // )
-    if (mongoUpload) {}
+    return result == SQLITE_DONE && sqlite3_changes(db) > 0;
 }
 
 
