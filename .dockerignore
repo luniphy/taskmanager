@@ -1,8 +1,12 @@
 data/*
+credentials/
 
 src/main
 
-.git
+.vscode/
+
+.github/
+.git/
 .gitignore
 
 LICENSE

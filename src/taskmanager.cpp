@@ -161,7 +161,7 @@ std::vector<std::string> TaskManager::getAvailableStatuses() const {
 }
 
 
-bool TaskManager::addTask(const Task& task, bool mongoUpload) {
+bool TaskManager::addTask(const Task& task) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         INSERT INTO tasks (title, category, dueDate, priority, status) VALUES (?, ?, ?, ?, ?);
@@ -183,27 +183,32 @@ bool TaskManager::addTask(const Task& task, bool mongoUpload) {
         std::cout << "\n\033[31mTask '" << task.getTitle() << "' already exists.\033[0m" << std::endl;
         return false;
     }
+    bool sqlResult = result == SQLITE_DONE;
 
     // MongoDB
-    if (mongoUpload) {
-        try {
-            mongoCollection.insert_one(make_document(
-                kvp("title", task.getTitle()),
-                kvp("category", task.getCategory()),
-                kvp("dueDate", dueDateToBsonDate(task.getDueDate())),
-                kvp("priority", PrioToStr(task.getPriority())),
-                kvp("status", StatToStr(task.getStatus()))
-            ));
+    try {
+        auto mongoResult = mongoCollection.insert_one(make_document(
+            kvp("title", task.getTitle()),
+            kvp("category", task.getCategory()),
+            kvp("dueDate", dueDateToBsonDate(task.getDueDate())),
+            kvp("priority", PrioToStr(task.getPriority())),
+            kvp("status", StatToStr(task.getStatus()))
+        ));
+        if (mongoResult && mongoResult->result().inserted_count() == 1) {
+            std::cout << "\nMongoDB: \033[32mTask uploaded\033[0m." << std::endl;
         }
-        catch (const mongocxx::exception& e) {
-            std::cerr << "MongoDB insert failed: " << e.what() << std::endl;
+        else {
+            std::cout << "\nMongoDB: \033[31mInsert not confirmed\033[0m." << std::endl;
         }
     }
+    catch (const mongocxx::exception& e) {
+        std::cerr << "\nMongoDB insert failed: " << e.what() << std::endl;
+    }
 
-    return result == SQLITE_DONE;
+    return sqlResult;
 }
 
-bool TaskManager::removeTask(const std::string& title, bool mongoUpload) {
+bool TaskManager::removeTask(const std::string& title) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         DELETE FROM tasks WHERE title = ?;
@@ -216,20 +221,25 @@ bool TaskManager::removeTask(const std::string& title, bool mongoUpload) {
 
     int result = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
+    bool sqlResult = result == SQLITE_DONE && sqlite3_changes(db) > 0;
 
     // MongoDB
-    if (mongoUpload) {
-        try {
-            mongoCollection.delete_one(make_document(
-                kvp("title", title)
-            ));
+    try {
+        auto mongoResult = mongoCollection.delete_one(make_document(
+            kvp("title", title)
+        ));
+        if (mongoResult && mongoResult->result().deleted_count() == 1) {
+            std::cout << "\nMongoDB: \033[32mTask removed\033[0m." << std::endl;
         }
-        catch (const mongocxx::exception& e) {
-            std::cerr << "MongoDB delete failed: " << e.what() << std::endl;
+        else {
+            std::cout << "\nMongoDB: \033[31mDeletion not confirmed\033[0m." << std::endl;
         }
     }
+    catch (const mongocxx::exception& e) {
+        std::cerr << "\nMongoDB delete failed: " << e.what() << std::endl;
+    }
 
-    return result == SQLITE_DONE && sqlite3_changes(db) > 0;
+    return sqlResult;
 }
 
 
@@ -260,7 +270,7 @@ std::optional<Task> TaskManager::findTask(const std::string& title) const {
 }
 
 
-bool TaskManager::updatePriority(const std::string& title, const Priority& priority, bool mongoUpload) {
+bool TaskManager::updatePriority(const std::string& title, const Priority& priority) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         UPDATE tasks SET priority = ? WHERE title = ?;
@@ -274,24 +284,29 @@ bool TaskManager::updatePriority(const std::string& title, const Priority& prior
 
     int result = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
+    bool sqlResult = result == SQLITE_DONE && sqlite3_changes(db) > 0;
 
     // MongoDB
-    if (mongoUpload) {
-        try {
-            mongoCollection.update_one(
-                make_document(kvp("title", title)),
-                make_document(kvp("$set", make_document(kvp("priority", PrioToStr(priority)))))
-            );
+    try {
+        auto mongoResult = mongoCollection.update_one(
+            make_document(kvp("title", title)),
+            make_document(kvp("$set", make_document(kvp("priority", PrioToStr(priority)))))
+        );
+        if (mongoResult && mongoResult->result().matched_count() == 1) {
+            std::cout << "\nMongoDB: \033[32mPriority updated\033[0m." << std::endl;
         }
-        catch (const mongocxx::exception& e) {
-            std::cerr << "MongoDB update priority failed: " << e.what() << std::endl;
+        else {
+            std::cout << "\nMongoDB: \033[31m32mPriority update not confirmed\033[0m." << std::endl;
         }
     }
+    catch (const mongocxx::exception& e) {
+        std::cerr << "\nMongoDB update priority failed: " << e.what() << std::endl;
+    }
     
-    return result == SQLITE_DONE && sqlite3_changes(db) > 0;
+    return sqlResult;
 }
 
-bool TaskManager::updateStatus(const std::string& title, const Status& status, bool mongoUpload) {
+bool TaskManager::updateStatus(const std::string& title, const Status& status) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
         UPDATE tasks SET status = ? WHERE title = ?;
@@ -305,21 +320,26 @@ bool TaskManager::updateStatus(const std::string& title, const Status& status, b
 
     int result = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
+    bool sqlResult = result == SQLITE_DONE && sqlite3_changes(db) > 0;
 
     // MongoDB
-    if (mongoUpload) {
-        try {
-            mongoCollection.update_one(
-                make_document(kvp("title", title)),
-                make_document(kvp("$set", make_document(kvp("status", StatToStr(status)))))
-            );
+    try {
+        auto mongoResult = mongoCollection.update_one(
+            make_document(kvp("title", title)),
+            make_document(kvp("$set", make_document(kvp("status", StatToStr(status)))))
+        );
+        if (mongoResult && mongoResult->result().matched_count() == 1) {
+            std::cout << "\nMongoDB: \033[32mStatus updated\033[0m." << std::endl;
         }
-        catch (const mongocxx::exception& e) {
-            std::cerr << "MongoDB update status failed: " << e.what() << std::endl;
+        else {
+            std::cout << "\nMongoDB: \033[31m32mStatus update not confirmed\033[0m." << std::endl;
         }
     }
+    catch (const mongocxx::exception& e) {
+        std::cerr << "\nMongoDB update status failed: " << e.what() << std::endl;
+    }
 
-    return result == SQLITE_DONE && sqlite3_changes(db) > 0;
+    return sqlResult;
 }
 
 

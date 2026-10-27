@@ -202,8 +202,6 @@ int main() {
 
 		TaskManager taskmanager;
 
-		bool mongoUpload = false;
-
 		// Test examples
 		/*
 		Task interview("job interview", "work", "25-09-2026", Priority::High, Status::Open);
@@ -229,7 +227,6 @@ int main() {
 			createJSON(taskmanager);
 
 			std::cout << "\n**************************************************************************" << std::endl;
-			std::cout << "Upload to MongoDB: " << (mongoUpload ? "\033[32mON" : "\033[31mOFF") << "\033[0m [Enter M to change]" << std::endl;
 			std::cout << "\nTask Manager:\n1: List available Tasks" <<
 						"\n2: Add Task\n3: Remove Task" <<
 						"\n4: Find Task\n5: Change Priority/Status" <<
@@ -237,12 +234,6 @@ int main() {
 						"\n8: Filter by Status\n9: Sort Tasks\n0: End\n\n-> ";
 
 			std::getline(std::cin, inpMenu);
-
-			if (inpMenu == "M" || inpMenu == "m") {
-				mongoUpload = !mongoUpload;
-				std::cout << "\nMongoDB upload " << (mongoUpload ? "\033[32menabled" : "\033[31mdisabled") << "\033[0m!" << std::endl;
-				continue;
-			}
 			
 			if (inpMenu.empty() || !std::all_of(inpMenu.begin(), inpMenu.end(), ::isdigit)) {
 				std::cout << "\n\033[31mInvalid Input.\033[0m" << std::endl;
@@ -285,7 +276,7 @@ int main() {
 					if (statusStr == EXIT_STR) { break; }
 
 					Task task(title, category, dueDate, StrToPrio(priorityStr), StrToStat(statusStr));
-					if (taskmanager.addTask(task, mongoUpload)) {
+					if (taskmanager.addTask(task)) {
 						std::cout << "\n\033[32mAdded '\033[0m" << title << "\033[32m'.\033[0m" << std::endl;
 					}
 					else {
@@ -298,7 +289,7 @@ int main() {
 					std::optional<Task> foundTask = findTaskPrompt(taskmanager);
 					if (foundTask == std::nullopt) { break ;}
 					
-					if (taskmanager.removeTask(foundTask->getTitle(), mongoUpload)) {
+					if (taskmanager.removeTask(foundTask->getTitle())) {
 						std::cout << "\n\033[32mRemoved '\033[0m" << foundTask->getTitle() << "\033[32m'.\033[0m" << std::endl;
 					}
 					else {
@@ -332,8 +323,8 @@ int main() {
 						priorityStr = checkInputPrompt(PrioStrVec);
 						if (priorityStr == EXIT_STR) { break; }
 
+						taskmanager.updatePriority(foundTask->getTitle(), StrToPrio(priorityStr));
 						std::cout << "\n\033[32mChanged Priority of '\033[0m" << foundTask->getTitle() << "\033[32m' from '\033[0m" << PrioToStr(foundTask->getPriority());
-						taskmanager.updatePriority(foundTask->getTitle(), StrToPrio(priorityStr), mongoUpload);
 
 						std::optional<Task> changedTask = taskmanager.findTask(foundTask->getTitle());
 						if (changedTask == std::nullopt) { break; }
@@ -345,8 +336,8 @@ int main() {
 						statusStr = checkInputPrompt(StatStrVec);
 						if (statusStr == EXIT_STR) { break; }
 
+						taskmanager.updateStatus(foundTask->getTitle(), StrToStat(statusStr));
 						std::cout << "\n\033[32mChanged Status of '\033[0m" << foundTask->getTitle() << "\033[32m' from '\033[0m" << StatToStr(foundTask->getStatus());
-						taskmanager.updateStatus(foundTask->getTitle(), StrToStat(statusStr), mongoUpload);
 
 						std::optional<Task> changedTask = taskmanager.findTask(foundTask->getTitle());
 						if (changedTask == std::nullopt) { break; }
