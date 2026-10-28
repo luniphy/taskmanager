@@ -131,8 +131,11 @@ docker pull ghcr.io/luniphy/taskmanager:latest
 ### Run the container
 
 ```bash
-docker run --rm -it -v $(pwd)/data:/app/data taskmanager
+docker run --rm -it -v $(pwd)/data:/app/data \
+-e MONGODB_URI="mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=truew=majority" taskmanager
 ```
+
+docker run --env-file ./credentials/atlas-credentials.env taskmanager:latest
 
 ### Notes
 
@@ -147,8 +150,6 @@ MIT © [luniphy](https://github.com/luniphy)
 
 
 
-
-
-// DONT USE MONGODB IN DOCKER CONTAINER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ???
 // Add IP adress to your network access. Save your URI as an environment variable.
 // Ensure mongocxx driver is installed
+// Installing mongocxx driver in docker container make install time longer

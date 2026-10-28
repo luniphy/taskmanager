@@ -1,13 +1,16 @@
-data/*
-credentials/
-
-src/main
+.github/
 
 .vscode/
 
-.github/
-.git/
-.gitignore
+credentials/
 
+data/*
+
+src/main
+
+.gitignore
 LICENSE
 README.md
+
+
+.git/
