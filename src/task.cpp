@@ -22,6 +22,7 @@ Status Task::getStatus() const { return status; }
 void Task::setPriority(Priority prio) { priority = prio; }
 void Task::setStatus(Status stat) { status = stat; }
 
+/// @brief Prints info of single task: title, category, due date, priority, status.
 void Task::print() const {
     std::cout << "Title: " << title << ", Category: " << category << ", Due Date: " << dueDate;
     switch(priority) {
@@ -37,7 +38,10 @@ void Task::print() const {
 }
 
 
-
+/// @brief Casts priority as string to corresponding Priority object.
+/// @param inp Priority as string.
+/// @return Casted Priority object.
+/// @throws std::invalid_argument if inp does not match a priority.
 Priority StrToPrio(const std::string& inp) {
 	std::string lower = inp;
 	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
@@ -53,6 +57,10 @@ Priority StrToPrio(const std::string& inp) {
 	throw std::invalid_argument("\033[31mInvalid Priority:\033[0m " + inp);
 }
 
+/// @brief Casts status as string to corresponding Status object.
+/// @param inp Status as string.
+/// @return Casted Status object.
+/// @throws std::invalid_argument if inp does not match a status.
 Status StrToStat(const std::string& inp) {
 	std::string lower = inp;
 	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
@@ -68,6 +76,10 @@ Status StrToStat(const std::string& inp) {
 	throw std::invalid_argument("\033[31mInvalid Status:\033[0m " + inp);
 }
 
+/// @brief Casts Priority object to corresponding string.
+/// @param prio Priority object.
+/// @return Priority as string.
+/// @throws std::invalid_argument if inp does not match a priority.
 std::string PrioToStr (const Priority& prio) {
 	if (prio == Priority::Low) {
 		return "Low";
@@ -81,6 +93,10 @@ std::string PrioToStr (const Priority& prio) {
 	throw std::invalid_argument("\033[31mInvalid Priority.\033[0m");
 }
 
+/// @brief Casts Status object to corresponding string.
+/// @param stat Status object.
+/// @return Status as string.
+/// @throws std::invalid_argument if inp does not match a status.
 std::string StatToStr (const Status& stat) {
 	if (stat == Status::Open) {
 		return "Open";

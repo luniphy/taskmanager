@@ -12,7 +12,8 @@
 
 constexpr const char* EXIT_STR = "0";
 
-
+/// @brief Prompts the user until a valid DD-MM-YYYY date is entered, or exit is requested.
+/// @return The validated date.
 std::string valiDATE() {
 	const int MIN = 1;
     const int MONTHS = 12;
@@ -99,6 +100,9 @@ std::string valiDATE() {
 }
 
 
+/// @brief Checks taskmanager if a task given by title exists. 
+/// @param taskmanager Taskmanager object.
+/// @return The found task.
 std::optional<Task> findTaskPrompt(const TaskManager& taskmanager) {
 	std::string title;
 	std::optional<Task> foundTask = std::nullopt;
@@ -119,6 +123,9 @@ std::optional<Task> findTaskPrompt(const TaskManager& taskmanager) {
 }
 
 
+/// @brief Checks if user input is allowed based on given values.
+/// @param allowedValues Vector with allowed inputs as strings.
+/// @return Valid input.
 std::string checkInputPrompt(const std::vector<std::string>& allowedValues) {
 	std::vector<std::string> allowedValuesLower;
 	for (std::string elem : allowedValues) {
@@ -148,6 +155,10 @@ std::string checkInputPrompt(const std::vector<std::string>& allowedValues) {
 }
 
 
+/// @brief Prints multiple tasks on console.
+/// @param tasks Vector of tasks.
+/// @param filterBool Whether a task filter is active.
+/// @param CatPrioStat The filter: category, priority, status. 
 void printMany(const std::vector<Task>& tasks, const bool& filterBool, const std::string& CatPrioStat) {
 	std::cout << "\n--------------------------------------------------------------------------" << std::endl;
 	if (tasks.size() == 0 && filterBool) {
@@ -168,6 +179,8 @@ void printMany(const std::vector<Task>& tasks, const bool& filterBool, const std
 }
 
 
+/// @brief Creates Json file in data/ of current tasks in taskmanager.
+/// @param taskmanager Taskmanager object.
 void createJSON(const TaskManager& taskmanager) {
 	std::ofstream file("./data/tasks.json");
 	if (!file.is_open()) {

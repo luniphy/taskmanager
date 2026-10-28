@@ -38,6 +38,8 @@ namespace {
 }
 
 
+/// @brief Creates the SQL database and table and connects to the MongoDB collection.
+/// @throws std::runtime_error if MONGODB_URI is missing or SQLite setup fails.
 TaskManager::TaskManager()
     : mongoClient(makeMongoClient())
     , mongoCollection(mongoClient["taskmanager"]["tasks"])    
@@ -72,6 +74,8 @@ TaskManager::~TaskManager() {
 }
 
 
+/// @brief Queries for all entries in SQL table.
+/// @return Vector of all tasks.
 std::vector<Task> TaskManager::getAllTasks() const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -96,6 +100,8 @@ std::vector<Task> TaskManager::getAllTasks() const {
 }
 
 
+/// @brief Queries for all available categories in SQL table.
+/// @return Vector of unique categories.
 std::vector<std::string> TaskManager::getAvailableCategories() const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -118,6 +124,8 @@ std::vector<std::string> TaskManager::getAvailableCategories() const {
     return availableCategories;
 }
 
+/// @brief Queries for all available priorities in SQL table.
+/// @return Vector of unique priorities.
 std::vector<std::string> TaskManager::getAvailablePriorities() const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -139,6 +147,8 @@ std::vector<std::string> TaskManager::getAvailablePriorities() const {
     return availablePriorities;
 }
 
+/// @brief Queries for all available statuses in SQL table.
+/// @return Vector of unique statuses.
 std::vector<std::string> TaskManager::getAvailableStatuses() const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -161,6 +171,10 @@ std::vector<std::string> TaskManager::getAvailableStatuses() const {
 }
 
 
+/// @brief Inserts task object into SQL table and MongoDB collection.
+/// @param task Added Task object.
+/// @return Whether SQL insert was successful.
+/// @note MongoDB insert success info only printed on console. Does not influence return bool.
 bool TaskManager::addTask(const Task& task) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -208,6 +222,10 @@ bool TaskManager::addTask(const Task& task) {
     return sqlResult;
 }
 
+/// @brief Deletes task object from SQL table and MongoDB collection.
+/// @param title Title of task.
+/// @return Whether SQL deletion was successful.
+/// @note MongoDB delete success info only printed on console. Does not influence return bool.
 bool TaskManager::removeTask(const std::string& title) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -243,6 +261,9 @@ bool TaskManager::removeTask(const std::string& title) {
 }
 
 
+/// @brief Queries table for task by title.
+/// @param title Title of task.
+/// @return The found task or std::nullopt if no matching task exists.
 std::optional<Task> TaskManager::findTask(const std::string& title) const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -270,6 +291,11 @@ std::optional<Task> TaskManager::findTask(const std::string& title) const {
 }
 
 
+/// @brief Updates the priority level in SQL and MongoDB.
+/// @param title Title of task.
+/// @param priority New Priority of task.
+/// @return Whether SQL update was successful.
+/// @note MongoDB update success info only printed on console. Does not influence return bool.
 bool TaskManager::updatePriority(const std::string& title, const Priority& priority) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -306,6 +332,11 @@ bool TaskManager::updatePriority(const std::string& title, const Priority& prior
     return sqlResult;
 }
 
+/// @brief Updates the status in SQL and MongoDB.
+/// @param title Title of task.
+/// @param status New status of task.
+/// @return Whether SQL update was successful.
+/// @note MongoDB update success info only printed on console. Does not influence return bool.
 bool TaskManager::updateStatus(const std::string& title, const Status& status) {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -343,6 +374,9 @@ bool TaskManager::updateStatus(const std::string& title, const Status& status) {
 }
 
 
+/// @brief Filters SQL table for tasks of a given category.
+/// @param cat Chosen category.
+/// @return Filtered tasks as a vector.
 std::vector<Task> TaskManager::filterByCategory(const std::string& cat) const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -368,6 +402,9 @@ std::vector<Task> TaskManager::filterByCategory(const std::string& cat) const {
     return filteredCategoryTasks;
 }
 
+/// @brief Filters SQL table for tasks of a given priority.
+/// @param prio Chosen priority.
+/// @return Filtered tasks as a vector.
 std::vector<Task> TaskManager::filterByPriority(Priority prio) const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -393,6 +430,9 @@ std::vector<Task> TaskManager::filterByPriority(Priority prio) const {
     return filteredPriorityTasks;
 }
 
+/// @brief Filters SQL table for tasks of a given status.
+/// @param stat Chosen status.
+/// @return Filtered tasks as a vector.
 std::vector<Task> TaskManager::filterByStatus(Status stat) const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -419,6 +459,8 @@ std::vector<Task> TaskManager::filterByStatus(Status stat) const {
 }
 
 
+/// @brief Sorts SQL table by title.
+/// @return Sorted vector of tasks.
 std::vector<Task> TaskManager::sortByTitle() const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -442,6 +484,8 @@ std::vector<Task> TaskManager::sortByTitle() const {
     return orderedTitleTasks;
 }
 
+/// @brief Sorts SQL table by category.
+/// @return Sorted vector of tasks.
 std::vector<Task> TaskManager::sortByCategory() const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -465,6 +509,8 @@ std::vector<Task> TaskManager::sortByCategory() const {
     return orderedCategoryTasks;
 }
 
+/// @brief Sorts SQL table by priority.
+/// @return Sorted vector of tasks, highest first.
 std::vector<Task> TaskManager::sortByPriority() const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(
@@ -488,6 +534,8 @@ std::vector<Task> TaskManager::sortByPriority() const {
     return orderedPriorityTasks;
 }
 
+/// @brief Sorts SQL table by status.
+/// @return Sorted vector of tasks.
 std::vector<Task> TaskManager::sortByStatus() const {
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, R"(

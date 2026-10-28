@@ -131,17 +131,15 @@ docker pull ghcr.io/luniphy/taskmanager:latest
 ### Run the container
 
 ```bash
-docker run --rm -it -v $(pwd)/data:/app/data \
--e MONGODB_URI="mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=truew=majority" taskmanager
+docker run --rm -it -v $(pwd)/data:/app/data -e MONGODB_URI="**ENTER URI HERE**" taskmanager:latest
 ```
-
-docker run --env-file ./credentials/atlas-credentials.env taskmanager:latest
 
 ### Notes
 
 - To run pulled images, use `luniphy/taskmanager` or `ghcr.io/luniphy/taskmanager` respectively.
 - Run the container in interactive mode: `-it`
 - The volume mount preserves the database and JSON file in the local `data/` directory after the container stops.
+- The `MONGODB_UI` usually goes like: `"mongodb+srv://USERNAME:PASSWORD@cluster0.CLUSTERID.mongodb.net"`
 
 ## License
 
