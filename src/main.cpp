@@ -240,7 +240,7 @@ int main() {
 			createJSON(taskmanager);
 
 			std::cout << "\n**************************************************************************" << std::endl;
-			std::cout << "\nTask Manager:\n1: List available Tasks" <<
+			std::cout << "Task Manager:\n1: List available Tasks" <<
 						"\n2: Add Task\n3: Remove Task" <<
 						"\n4: Find Task\n5: Change Priority/Status" <<
 						"\n6: Filter by Category\n7: Filter by Priority" <<

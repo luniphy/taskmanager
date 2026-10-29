@@ -2,7 +2,7 @@
 
 .vscode/
 
-credentials/*
+credentials/
 
 data/tasks.json
 data/tasks_sql.db

@@ -8,7 +8,7 @@
 
 # Task Manager
 
-A small console based task manager app using a **SQLite** database. This is a learning project to practice object-oriented programming, enums, file separation and SQL database operations.
+A small console based task manager app using **SQLite** & **MongoDB** databases. This is a learning project to practice object-oriented programming, enums and mainly SQL & NoSQL code integration.
 
 ### Example
 
@@ -35,7 +35,8 @@ Task Manager:
 8: Filter by Status
 9: Sort Tasks
 0: End
-->
+
+-> 
 ```
 
 ## Table of Contents
@@ -58,16 +59,15 @@ The app is designed to manage tasks in a simple and structured way in a local SQ
 - **Remove task** – Delete an existing task.
 - **Find task** – Search for a task by title.
 - **Change priority / status** – Update the priority (`Low` / `Medium` / `High`) or status (`Open` / `InProgress` / `Done`) of a task.
-- **Filter by category** – Show only tasks that belong to a given category.
-- **Filter by priority** – Show only tasks of a given priority level.
-- **Filter by status** – Show only tasks of a given status.
+- **Filter by category / priority / status** – Show only tasks that belong to a certain category, priority or status.
 - **Sort tasks** – Sort tasks by title, category, priority or status.
 - **Date validation** – Due dates are validated including leap-years.
 - **Input cancellation** - Every prompt allows to cancel and return to the main menu.
 - **JSON export** – Export tasks to `data/tasks.json`.
 - **SQLite database** - Stores tasks in `data/tasks_sql.db`.
+- **MongoDB Atlas** - Creates and updates a collection on Atlas, if an URI is provided.
 - **Separated source files** - Separate task model, database manager and main loop.
-- **Continuous Deployment (CD)**: Automated image pushes to Docker Hub / GHCR with vulnerability scan
+- **Continuous Deployment (CD)**: Automated image pushes to Docker Hub / GHCR with vulnerability scan.
 
 ## Project structure
 
@@ -81,7 +81,7 @@ taskmanager/
 │  ├─ main.cpp                  # Contains the CLI, menu loop, input validation and JSON export.
 │  ├─ task.cpp                  # Implements the Task class and the conversion functions.
 │  ├─ task.hpp                  # Declaration of the Task class.
-│  ├─ taskmanager.cpp           # Implements SQLite operations for the Taskmanager class.
+│  ├─ taskmanager.cpp           # Implements SQLite and MongoDB operations for the Taskmanager class.
 │  └─ taskmanager.hpp           # Declaration of the Taskmanager class.
 ├─ Dockerfile
 ├─ LICENSE
@@ -130,16 +130,24 @@ docker pull ghcr.io/luniphy/taskmanager:latest
 
 ### Run the container
 
+If you want to use MongoDB Atlas provide the `MONGODB_URI` as a flag:
+
 ```bash
 docker run --rm -it -v $(pwd)/data:/app/data -e MONGODB_URI="**ENTER URI HERE**" taskmanager:latest
+```
+
+You can also run in SQL-only mode by:
+
+```bash
+docker run --rm -it -v $(pwd)/data:/app/data taskmanager:latest
 ```
 
 ### Notes
 
 - To run pulled images, use `luniphy/taskmanager` or `ghcr.io/luniphy/taskmanager` respectively.
 - Run the container in interactive mode: `-it`
-- The volume mount preserves the database and JSON file in the local `data/` directory after the container stops.
-- The `MONGODB_UI` usually goes like: `"mongodb+srv://USERNAME:PASSWORD@cluster0.CLUSTERID.mongodb.net"`
+- The volume mount preserves the database and Json file in the local `data/` directory after the container stops.
+- The `MONGODB_URI` usually goes like: `"mongodb+srv://USERNAME:PASSWORD@cluster0.CLUSTERID.mongodb.net"`
 
 ## License
 
@@ -147,7 +155,7 @@ MIT © [luniphy](https://github.com/luniphy)
 
 
 
-
-// Add IP adress to your network access. Save your URI as an environment variable.
-// Ensure mongocxx driver is installed
-// Installing mongocxx driver in docker container make install time longer
+// Local Use: Install mongocxx driver, set URI as environment variable, add IP adress to network access in Atlas & run commands.
+// Docker Use: Add IP adress to network access in Atlas & URI as flag in docker run command.
+// If MongoDB URI not set, docker runs SQL only mode.
+// All MongoDB queries only make console output, and dont make crashes 
