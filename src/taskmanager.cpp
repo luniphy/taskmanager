@@ -5,6 +5,7 @@
 #include <sqlite3.h>
 #include <stdexcept>
 #include <cctype>
+#include <filesystem>
 
 #ifdef MONGO_ENABLED
 #include <chrono>
@@ -45,7 +46,7 @@ namespace {
             throw std::invalid_argument("Invalid dueDate format: " + dueDate);
         }
 
-        std::time_t time = timegm(&tm); // UTC
+        std::time_t time = timegm(&tm);
         return bsoncxx::types::b_date{std::chrono::system_clock::from_time_t(time)};
     }
 }
@@ -60,6 +61,8 @@ TaskManager::TaskManager()
     , mongoCollection(mongoClient ? mongoClient["taskmanager"]["tasks"] : mongocxx::collection{})
 #endif
 {
+    std::filesystem::create_directories("./data");
+
     if (sqlite3_open("./data/tasks_sql.db", &db) != SQLITE_OK) {
         std::string errorMsg = sqlite3_errmsg(db);
         sqlite3_close(db);
@@ -187,7 +190,7 @@ std::vector<std::string> TaskManager::getAvailableStatuses() const {
 }
 
 
-/// @brief Inserts task object into SQL table and MongoDB collection.
+/// @brief Inserts task into SQL table and MongoDB collection. Mongo only triggered if SQL query succeeded.
 /// @param task Added Task object.
 /// @return Whether SQL insert was successful.
 /// @note MongoDB insert success info only printed on console. Does not influence return bool.
@@ -242,7 +245,7 @@ bool TaskManager::addTask(const Task& task) {
     return sqlResult;
 }
 
-/// @brief Deletes task object from SQL table and MongoDB collection.
+/// @brief Deletes task from SQL table and MongoDB collection. Mongo only triggered if SQL query succeeded.
 /// @param title Title of task.
 /// @return Whether SQL deletion was successful.
 /// @note MongoDB delete success info only printed on console. Does not influence return bool.
@@ -315,7 +318,7 @@ std::optional<Task> TaskManager::findTask(const std::string& title) const {
 }
 
 
-/// @brief Updates the priority level in SQL and MongoDB.
+/// @brief Updates the priority level in SQL and MongoDB. Mongo only triggered if SQL query succeeded.
 /// @param title Title of task.
 /// @param priority New Priority of task.
 /// @return Whether SQL update was successful.
@@ -360,7 +363,7 @@ bool TaskManager::updatePriority(const std::string& title, const Priority& prior
     return sqlResult;
 }
 
-/// @brief Updates the status in SQL and MongoDB.
+/// @brief Updates the status in SQL and MongoDB. Mongo only triggered if SQL query succeeded.
 /// @param title Title of task.
 /// @param status New status of task.
 /// @return Whether SQL update was successful.

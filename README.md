@@ -8,7 +8,7 @@
 
 # Task Manager
 
-A small console based task manager app using **SQLite** & **MongoDB** databases. This is a learning project to practice object-oriented programming, enums and mainly SQL & NoSQL code integration.
+A small console based task manager app using **SQLite** & **MongoDB** databases. This is a learning project to practice object-oriented programming, enums and mainly SQL & NoSQL integration.
 
 ### Example
 
@@ -44,13 +44,16 @@ Task Manager:
 - [Overview](#overview)
 - [Features](#features)
 - [Project Structure](#project-structure)
-- [Build & Run](#build--run)
+- [Requirements](#requirements)
+- [Build - Without MongoDB Atlas](#build---without-mongodb-atlas)
+- [Build - With MongoDB Atlas](#build---with-mongodb-atlas)
+- [Run the Program](#run-the-program)
 - [Docker](#docker)
 - [License](#license)
 
 ## Overview
 
-The app is designed to manage tasks in a simple and structured way in a local SQLite database. It allows users to create, view, find, update, remove, filter and sort tasks.
+The app manages tasks in a simple and structured way in a local **SQLite** database. It allows users to create, view, find, update, remove, filter and sort tasks. If the `mongo-cxx-driver` is installed and a `MONGODB_URI` is provided, adding, removing and updating tasks is mirrored to a **MongoDB Atlas** collection.
 
 ## Features
 
@@ -65,7 +68,8 @@ The app is designed to manage tasks in a simple and structured way in a local SQ
 - **Input cancellation** - Every prompt allows to cancel and return to the main menu.
 - **JSON export** – Export tasks to `data/tasks.json`.
 - **SQLite database** - Stores tasks in `data/tasks_sql.db`.
-- **MongoDB Atlas** - Creates and updates a collection on Atlas, if an URI is provided.
+- **MongoDB Atlas (optional)** – Mirrors add, remove and update operations to a collection in Atlas.
+- **SQLite-only mode** – Works without MongoDB if the driver isn't installed (detected at compile time) or the URI is not set or wrong.
 - **Separated source files** - Separate task model, database manager and main loop.
 - **Continuous Deployment (CD)**: Automated image pushes to Docker Hub / GHCR with vulnerability scan.
 
@@ -88,7 +92,53 @@ taskmanager/
 └─ README.md
 ```
 
-## Build & Run
+## Requirements
+
+- C++17 compiler (g++ 9 or newer)
+-  SQLite development files.
+
+```bash
+sudo apt install g++ libsqlite3-dev      # Debian / Ubuntu / Mint
+sudo dnf install gcc-c++ sqlite-devel    # Fedora
+sudo pacman -S gcc sqlite                # Arch
+```
+
+
+
+Windows?
+
+
+
+
+## Build - Without MongoDB Atlas
+
+Compile from root:
+
+```bash
+g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3
+```
+
+## Build - With MongoDB Atlas
+
+1. Install the [mongo-cxx-driver](https://github.com/mongodb/mongo-cxx-driver) from its GitHub repository.
+    - Follow this Guide: [Get Started with the C++ Driver](https://www.mongodb.com/docs/languages/cpp/cpp-driver/current/get-started/)
+2. Ensure that your IP is on the Atlas network access list.
+3. Set the `MONGODB_URI` as an environment variable.
+
+Notes:
+- If the URI is not set or wrong, the program defaults to SQL-only mode.
+- All MongoDB queries only output info on console about their status. They don't interrupt the main loop workflow.
+- MongoDB is only executed if the SQL succeeds beforehand. Otherwise the whole query stops. 
+
+
+
+
+
+MongoDB errors are only printed to the console and don't interrupt the main loop.
+
+
+
+
 
 Compile from root:
 
@@ -96,7 +146,7 @@ Compile from root:
 g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3 $(pkg-config --cflags --libs libmongocxx1 libbsoncxx1)
 ```
 
-Run the file:
+## Run the program
 
 ```bash
 ./src/main
@@ -147,17 +197,9 @@ docker run --rm -it -v $(pwd)/data:/app/data taskmanager:latest
 - To run pulled images, use `luniphy/taskmanager` or `ghcr.io/luniphy/taskmanager` respectively.
 - Run the container in interactive mode: `-it`
 - The volume mount preserves the database and Json file in the local `data/` directory after the container stops.
-- The `MONGODB_URI` usually goes like: `"mongodb+srv://USERNAME:PASSWORD@cluster0.CLUSTERID.mongodb.net"`
+- The `MONGODB_URI` goes like: `"mongodb+srv://USERNAME:PASSWORD@cluster0.CLUSTERID.mongodb.net"`
+- Ensure that your IP is on the Atlas network access list for using MongoDB.
 
 ## License
 
 MIT © [luniphy](https://github.com/luniphy)
-
-
-
-// Local Use: Install mongocxx driver, set URI as environment variable, add IP adress to network access in Atlas & run commands.
-// Docker Use: Add IP adress to network access in Atlas & URI as flag in docker run command.
-// If MongoDB URI not set, docker runs SQL only mode.
-// All MongoDB queries only make console output, and dont make crashes
-
-// 2 Blöcke: Run with MongoDB + Run without MongoDB
