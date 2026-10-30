@@ -4,6 +4,12 @@
 #include <algorithm>
 #include <sqlite3.h>
 #include <stdexcept>
+#include <cctype>
+
+#ifdef MONGO_ENABLED
+#include <chrono>
+#include <cstdlib>
+#include <ctime>
 #include <sstream>
 #include <iomanip>
 
@@ -26,7 +32,7 @@ namespace {
             return mongocxx::client{mongocxx::uri{uriEnv}};
         }
         catch (const mongocxx::exception& e) {
-            std::cerr << "\n\033[31mFailed to connect to MongoDB: " << e.what() << " — running with SQLite only.\033[0m" << std::endl;
+            std::cerr << "\n\033[31mInvalid MONGODB_URI: " << e.what() << " — running with SQLite only.\033[0m" << std::endl;
             return mongocxx::client{};
         }
     }
@@ -43,13 +49,16 @@ namespace {
         return bsoncxx::types::b_date{std::chrono::system_clock::from_time_t(time)};
     }
 }
+#endif
 
 
-/// @brief Creates the SQL database and table and connects to the MongoDB collection if URI set.
-/// @throws std::runtime_error if MONGODB_URI is missing or SQLite setup fails.
+/// @brief Creates the SQL database and table. Prepares the MongoDB collection if driver is built and URI set.
+/// @note The MongoDB connection is established on the first operation.
 TaskManager::TaskManager()
+#ifdef MONGO_ENABLED
     : mongoClient(makeMongoClient())
-    , mongoCollection(mongoClient ? mongoClient["taskmanager"]["tasks"] : mongocxx::collection{})   
+    , mongoCollection(mongoClient ? mongoClient["taskmanager"]["tasks"] : mongocxx::collection{})
+#endif
 {
     if (sqlite3_open("./data/tasks_sql.db", &db) != SQLITE_OK) {
         std::string errorMsg = sqlite3_errmsg(db);
@@ -207,7 +216,8 @@ bool TaskManager::addTask(const Task& task) {
     bool sqlResult = result == SQLITE_DONE;
 
     // MongoDB
-    if (mongoCollection) {
+#ifdef MONGO_ENABLED
+    if (sqlResult && mongoCollection) {
         try {
             auto mongoResult = mongoCollection.insert_one(make_document(
                 kvp("title", task.getTitle()),
@@ -223,10 +233,11 @@ bool TaskManager::addTask(const Task& task) {
                 std::cout << "\nMongoDB: \033[31mInsert not confirmed\033[0m." << std::endl;
             }
         }
-        catch (const mongocxx::exception& e) {
+        catch (const std::exception& e) {
             std::cerr << "\nMongoDB insert failed: " << e.what() << std::endl;
         }
     }
+#endif
 
     return sqlResult;
 }
@@ -251,7 +262,8 @@ bool TaskManager::removeTask(const std::string& title) {
     bool sqlResult = result == SQLITE_DONE && sqlite3_changes(db) > 0;
 
     // MongoDB
-    if (mongoCollection) {
+#ifdef MONGO_ENABLED
+    if (sqlResult && mongoCollection) {
         try {
             auto mongoResult = mongoCollection.delete_one(make_document(
                 kvp("title", title)
@@ -267,6 +279,7 @@ bool TaskManager::removeTask(const std::string& title) {
             std::cerr << "\nMongoDB delete failed: " << e.what() << std::endl;
         }
     }
+#endif
 
     return sqlResult;
 }
@@ -324,7 +337,8 @@ bool TaskManager::updatePriority(const std::string& title, const Priority& prior
     bool sqlResult = result == SQLITE_DONE && sqlite3_changes(db) > 0;
 
     // MongoDB
-    if (mongoCollection) {
+#ifdef MONGO_ENABLED
+    if (sqlResult && mongoCollection) {
         try {
             auto mongoResult = mongoCollection.update_one(
                 make_document(kvp("title", title)),
@@ -334,13 +348,14 @@ bool TaskManager::updatePriority(const std::string& title, const Priority& prior
                 std::cout << "\nMongoDB: \033[32mPriority updated\033[0m." << std::endl;
             }
             else {
-                std::cout << "\nMongoDB: \033[31m32mPriority update not confirmed\033[0m." << std::endl;
+                std::cout << "\nMongoDB: \033[31mPriority update not confirmed\033[0m." << std::endl;
             }
         }
         catch (const mongocxx::exception& e) {
             std::cerr << "\nMongoDB update priority failed: " << e.what() << std::endl;
         }
     }
+#endif
     
     return sqlResult;
 }
@@ -367,7 +382,8 @@ bool TaskManager::updateStatus(const std::string& title, const Status& status) {
     bool sqlResult = result == SQLITE_DONE && sqlite3_changes(db) > 0;
 
     // MongoDB
-    if (mongoCollection) {
+#ifdef MONGO_ENABLED
+    if (sqlResult && mongoCollection) {
         try {
             auto mongoResult = mongoCollection.update_one(
                 make_document(kvp("title", title)),
@@ -377,13 +393,14 @@ bool TaskManager::updateStatus(const std::string& title, const Status& status) {
                 std::cout << "\nMongoDB: \033[32mStatus updated\033[0m." << std::endl;
             }
             else {
-                std::cout << "\nMongoDB: \033[31m32mStatus update not confirmed\033[0m." << std::endl;
+                std::cout << "\nMongoDB: \033[31mStatus update not confirmed\033[0m." << std::endl;
             }
         }
         catch (const mongocxx::exception& e) {
             std::cerr << "\nMongoDB update status failed: " << e.what() << std::endl;
         }
     }
+#endif
 
     return sqlResult;
 }

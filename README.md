@@ -158,4 +158,6 @@ MIT © [luniphy](https://github.com/luniphy)
 // Local Use: Install mongocxx driver, set URI as environment variable, add IP adress to network access in Atlas & run commands.
 // Docker Use: Add IP adress to network access in Atlas & URI as flag in docker run command.
 // If MongoDB URI not set, docker runs SQL only mode.
-// All MongoDB queries only make console output, and dont make crashes 
+// All MongoDB queries only make console output, and dont make crashes
+
+// 2 Blöcke: Run with MongoDB + Run without MongoDB

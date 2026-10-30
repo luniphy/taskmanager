@@ -6,9 +6,12 @@
 #include <string>
 #include <vector>
 
-#include <mongocxx/client.hpp>
-#include <mongocxx/instance.hpp>
-#include <mongocxx/uri.hpp>
+#if __has_include(<mongocxx/client.hpp>)
+	#define MONGO_ENABLED
+	#include <mongocxx/client.hpp>
+	#include <mongocxx/instance.hpp>
+	#include <mongocxx/uri.hpp>
+#endif
 
 
 struct sqlite3;
@@ -17,8 +20,11 @@ struct sqlite3;
 class TaskManager {
 	private:
 		sqlite3* db;
+		
+#ifdef MONGO_ENABLED
 		mongocxx::client mongoClient;
 		mongocxx::collection mongoCollection;
+#endif
 
 	public:
 		TaskManager();

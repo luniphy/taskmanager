@@ -3,7 +3,9 @@
 
 #include <iostream>
 #include <algorithm>
+#include <optional>
 #include <fstream>
+#include <cctype>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -37,7 +39,7 @@ std::string valiDATE() {
 
     do {
 		std::cout << "-> ";
-		std::getline(std::cin, date);
+		if (!std::getline(std::cin, date)) { return EXIT_STR; }
 
 		if (date == EXIT_STR) {
 			return date;
@@ -110,7 +112,7 @@ std::optional<Task> findTaskPrompt(const TaskManager& taskmanager) {
 	while (foundTask == std::nullopt && title != EXIT_STR) {
 		std::cout << "[Enter 0 to exit.]" << std::endl;
 		std::cout << "-> ";
-		std::getline(std::cin, title);
+		if (!std::getline(std::cin, title)) { break; }
 		if (title == EXIT_STR) { break; }
 
 		std::transform(title.begin(), title.end(), title.begin(), ::tolower);
@@ -137,7 +139,7 @@ std::string checkInputPrompt(const std::vector<std::string>& allowedValues) {
 	do {
 		std::cout << "[Enter 0 to exit.]" << std::endl;
 		std::cout << "-> ";
-		std::getline(std::cin, value);
+		if (!std::getline(std::cin, value)) { return EXIT_STR; }
 		if (value == EXIT_STR) { 
 			return value;
 		}
@@ -159,7 +161,7 @@ std::string checkInputPrompt(const std::vector<std::string>& allowedValues) {
 /// @param tasks Vector of tasks.
 /// @param filterBool Whether a task filter is active.
 /// @param CatPrioStat The filter: category, priority, status. 
-void printMany(const std::vector<Task>& tasks, const bool& filterBool, const std::string& CatPrioStat) {
+void printMany(const std::vector<Task>& tasks, bool filterBool, const std::string& CatPrioStat) {
 	std::cout << "\n--------------------------------------------------------------------------" << std::endl;
 	if (tasks.size() == 0 && filterBool) {
 		std::cout << "\n\033[31mNo Tasks with '\033[0m" << CatPrioStat << "\033[31m' found.\033[0m" << std::endl;
@@ -228,7 +230,7 @@ int main() {
 		*/
 
 
-		int inpChoice;
+		int inpChoice = -1;
 		std::string title, category, dueDate, priorityStr, statusStr, inpMenu, inpChange, inpSort;
 		std::string emptyStr = "";
 		std::vector<std::string> PrioStrVec   = {"Low", "Medium", "High"};
@@ -246,7 +248,7 @@ int main() {
 						"\n6: Filter by Category\n7: Filter by Priority" <<
 						"\n8: Filter by Status\n9: Sort Tasks\n0: End\n\n-> ";
 
-			std::getline(std::cin, inpMenu);
+			if (!std::getline(std::cin, inpMenu)) { break; }
 			
 			if (inpMenu.empty() || !std::all_of(inpMenu.begin(), inpMenu.end(), ::isdigit)) {
 				std::cout << "\n\033[31mInvalid Input.\033[0m" << std::endl;
@@ -267,13 +269,11 @@ int main() {
 				}
 				case 2: { // Add Task 
 					std::cout << "\nAdd Task\nEnter Task Title:\n[Enter 0 to exit.]\n-> ";
-					std::getline(std::cin, title);
-					if (title == EXIT_STR) { break; }
+					if (!std::getline(std::cin, title) || title == EXIT_STR) { break; }
 					std::transform(title.begin(), title.end(), title.begin(), ::tolower);
 
 					std::cout << "\nEnter Task Category:\n[Enter 0 to exit.]\n-> ";
-					std::getline(std::cin, category);
-					if (category == EXIT_STR) { break; }
+					if (!std::getline(std::cin, category) || category == EXIT_STR) { break; }
 					std::transform(category.begin(), category.end(), category.begin(), ::tolower);
 
 					std::cout << "\nEnter Task Due Date (DD-MM-YYYY):\n[Enter 0 to exit.]" << std::endl;
@@ -412,7 +412,7 @@ int main() {
 		return 0;
 	}
 
-	catch (const std::runtime_error& e) {
+	catch (const std::exception& e) {
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
