@@ -8,7 +8,7 @@
 
 # Task Manager
 
-A small console based task manager app using **SQLite** & **MongoDB** databases. This is a learning project to practice object-oriented programming, enums and mainly SQL & NoSQL integration.
+A small console based task manager app that stores tasks in **SQLite** and can optionally mirror to **MongoDB Atlas**. This is a learning project to practice object-oriented programming, enums and SQL/NoSQL integration.
 
 ### Example
 
@@ -45,15 +45,15 @@ Task Manager:
 - [Features](#features)
 - [Project Structure](#project-structure)
 - [Requirements](#requirements)
-- [Build - Without MongoDB Atlas](#build---without-mongodb-atlas)
-- [Build - With MongoDB Atlas](#build---with-mongodb-atlas)
+- [Build - Without MongoDB](#build---without-mongodb)
+- [Build - With MongoDB](#build---with-mongodb)
 - [Run the Program](#run-the-program)
 - [Docker](#docker)
 - [License](#license)
 
 ## Overview
 
-The app manages tasks in a simple and structured way in a local **SQLite** database. It allows users to create, view, find, update, remove, filter and sort tasks. If the `mongo-cxx-driver` is installed and a `MONGODB_URI` is provided, adding, removing and updating tasks is mirrored to a **MongoDB Atlas** collection.
+The app manages tasks in a local **SQLite** database. It allows users to create, view, find, update, remove, filter and sort tasks. When **MongoDB** is configured, successful changes are mirrored to an **Atlas** collection.
 
 ## Features
 
@@ -68,9 +68,8 @@ The app manages tasks in a simple and structured way in a local **SQLite** datab
 - **Input cancellation** - Every prompt allows to cancel and return to the main menu.
 - **JSON export** – Export tasks to `data/tasks.json`.
 - **SQLite database** - Stores tasks in `data/tasks_sql.db`.
-- **MongoDB Atlas (optional)** – Mirrors add, remove and update operations to a collection in Atlas.
-- **SQLite-only mode** – Works without MongoDB if the driver isn't installed (detected at compile time) or the URI is not set or wrong.
-- **Separated source files** - Separate task model, database manager and main loop.
+- **MongoDB Atlas (optional)** – Mirrors successful add, remove and update operations to an **Atlas** collection.
+- **SQLite-only mode** – Works without MongoDB if the driver isn't installed (detected at compile time) or the URI is not configured.
 - **Continuous Deployment (CD)**: Automated image pushes to Docker Hub / GHCR with vulnerability scan.
 
 ## Project structure
@@ -78,14 +77,14 @@ The app manages tasks in a simple and structured way in a local **SQLite** datab
 ```
 taskmanager/
 ├─ .github/workflows/cd.yml     # CD workflow
-├─ data/                        # Example files are given
+├─ data/
 │  ├─ tasks_sql.db              # SQLite database
 │  └─ tasks.json                # JSON export
 ├─ src/
-│  ├─ main.cpp                  # Contains the CLI, menu loop, input validation and JSON export.
-│  ├─ task.cpp                  # Implements the Task class and the conversion functions.
+│  ├─ main.cpp                  # CLI, menu loop, input validation & JSON export.
+│  ├─ task.cpp                  # Task class & conversion functions.
 │  ├─ task.hpp                  # Declaration of the Task class.
-│  ├─ taskmanager.cpp           # Implements SQLite and MongoDB operations for the Taskmanager class.
+│  ├─ taskmanager.cpp           # Implements SQLite and MongoDB operations.
 │  └─ taskmanager.hpp           # Declaration of the Taskmanager class.
 ├─ Dockerfile
 ├─ LICENSE
@@ -94,23 +93,10 @@ taskmanager/
 
 ## Requirements
 
-- C++17 compiler (g++ 9 or newer)
--  SQLite development files.
-
-```bash
-sudo apt install g++ libsqlite3-dev      # Debian / Ubuntu / Mint
-sudo dnf install gcc-c++ sqlite-devel    # Fedora
-sudo pacman -S gcc sqlite                # Arch
-```
+SQLite development files are required for the build. On **Debian**-based systems, install `libsqlite3-dev`.
 
 
-
-Windows?
-
-
-
-
-## Build - Without MongoDB Atlas
+## Build - Without MongoDB
 
 Compile from root:
 
@@ -118,27 +104,16 @@ Compile from root:
 g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3
 ```
 
-## Build - With MongoDB Atlas
+## Build - With MongoDB
 
-1. Install the [mongo-cxx-driver](https://github.com/mongodb/mongo-cxx-driver) from its GitHub repository.
-    - Follow this Guide: [Get Started with the C++ Driver](https://www.mongodb.com/docs/languages/cpp/cpp-driver/current/get-started/)
-2. Ensure that your IP is on the Atlas network access list.
-3. Set the `MONGODB_URI` as an environment variable.
+1. Install the [MongoDB C++ driver](https://github.com/mongodb/mongo-cxx-driver) using the [official installation guide](https://www.mongodb.com/docs/languages/cpp/cpp-driver/current/get-started/).
+2. In **Atlas**, allow your public IP und **Network Access**.
+3. Set the provided `MONGODB_URI` as an environment variable.
 
 Notes:
-- If the URI is not set or wrong, the program defaults to SQL-only mode.
-- All MongoDB queries only output info on console about their status. They don't interrupt the main loop workflow.
-- MongoDB is only executed if the SQL succeeds beforehand. Otherwise the whole query stops. 
-
-
-
-
-
-MongoDB errors are only printed to the console and don't interrupt the main loop.
-
-
-
-
+- If the `MONGODB_URI` is unset or malformed, the program runs in SQL-only mode.
+- MongoDB operation statuses are only reported in the console and do not interrupt the main workflow.
+- MongoDB changes are only attempted after the corresponding SQLite operation succeeds.
 
 Compile from root:
 
@@ -147,6 +122,8 @@ g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlit
 ```
 
 ## Run the program
+
+From root:
 
 ```bash
 ./src/main
@@ -180,25 +157,30 @@ docker pull ghcr.io/luniphy/taskmanager:latest
 
 ### Run the container
 
-If you want to use MongoDB Atlas provide the `MONGODB_URI` as a flag:
+If you want to use **MongoDB Atlas**, provide the `MONGODB_URI` as a flag:
 
 ```bash
-docker run --rm -it -v $(pwd)/data:/app/data -e MONGODB_URI="**ENTER URI HERE**" taskmanager:latest
+docker run --rm -it \
+  -v $(pwd)/data:/app/data \
+  -e MONGODB_URI="**ENTER URI HERE**" \
+  taskmanager
 ```
 
-You can also run in SQL-only mode by:
+You can also run in SQL-only mode:
 
 ```bash
-docker run --rm -it -v $(pwd)/data:/app/data taskmanager:latest
+docker run --rm -it \
+  -v $(pwd)/data:/app/data \
+  taskmanager
 ```
 
 ### Notes
 
 - To run pulled images, use `luniphy/taskmanager` or `ghcr.io/luniphy/taskmanager` respectively.
 - Run the container in interactive mode: `-it`
-- The volume mount preserves the database and Json file in the local `data/` directory after the container stops.
-- The `MONGODB_URI` goes like: `"mongodb+srv://USERNAME:PASSWORD@cluster0.CLUSTERID.mongodb.net"`
-- Ensure that your IP is on the Atlas network access list for using MongoDB.
+- The volume mount preserves the database and JSON file in the local `data/` directory after the container stops.
+- Ensure that your public IP is allowed on the **Atlas Network Access** list when using MongoDB.
+- The `MONGODB_URI` usually goes like: `"mongodb+srv://USERNAME:PASSWORD@cluster0.CLUSTERID.mongodb.net"`
 
 ## License
 
