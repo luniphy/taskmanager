@@ -8,7 +8,7 @@
 
 # Task Manager
 
-A small console based task manager app that stores tasks in **SQLite** and can optionally mirror to **MongoDB Atlas**. This is a learning project to practice object-oriented programming, enums and SQL/NoSQL integration.
+A small console based task manager app that stores tasks in **SQLite** and can optionally mirror to **MongoDB Atlas**. This is a learning project to practice object-oriented programming, enums, user input handling and SQL/NoSQL integration.
 
 ### Example
 
