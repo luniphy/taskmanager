@@ -112,7 +112,7 @@ g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlit
 ## Build - With MongoDB
 
 1. Install the [MongoDB C++ driver](https://github.com/mongodb/mongo-cxx-driver) using the [official installation guide](https://www.mongodb.com/docs/languages/cpp/cpp-driver/current/get-started/).
-2. In **Atlas**, allow your public IP und **Network Access**.
+2. In **Atlas**, add your public IP to the **Network Access**.
 3. Set the provided `MONGODB_URI` as an environment variable.
 
 Notes:
