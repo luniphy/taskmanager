@@ -45,7 +45,7 @@ Task Manager:
 - [Features](#features)
 - [Project Structure](#project-structure)
 - [Requirements](#requirements)
-- [Build - Without MongoDB](#build---without-mongodb)
+- [Build](#build)
 - [Build - With MongoDB](#build---with-mongodb)
 - [Run the Program](#run-the-program)
 - [Docker](#docker)
@@ -95,8 +95,13 @@ taskmanager/
 
 SQLite development files are required for the build. On **Debian**-based systems, install `libsqlite3-dev`.
 
+## Build
 
-## Build - Without MongoDB
+Clone the repository:
+
+```bash
+git clone https://github.com/luniphy/taskmanager.git
+```
 
 Compile from root:
 
