@@ -46,7 +46,6 @@ Task Manager:
 - [Project Structure](#project-structure)
 - [Requirements](#requirements)
 - [Build](#build)
-- [Build - With MongoDB](#build---with-mongodb)
 - [Run the Program](#run-the-program)
 - [Docker](#docker)
 - [License](#license)
@@ -93,7 +92,15 @@ taskmanager/
 
 ## Requirements
 
-SQLite development files are required for the build. On **Debian**-based systems, install `libsqlite3-dev`.
+SQLite development files are required for the build.
+
+- On **Debian**-based systems, install `libsqlite3-dev`.
+
+For **MongoDB**: (Not needed for SQL-only mode)
+
+1. Install the [MongoDB C++ driver](https://github.com/mongodb/mongo-cxx-driver) using the [official installation guide](https://www.mongodb.com/docs/languages/cpp/cpp-driver/current/get-started/).
+2. In **Atlas**, add your public IP to the **Network Access**.
+3. Set the provided `MONGODB_URI` as an environment variable.
 
 ## Build
 
@@ -106,25 +113,21 @@ git clone https://github.com/luniphy/taskmanager.git
 Compile from root:
 
 ```bash
+g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3 \
+$(pkg-config --cflags --libs libmongocxx1 libbsoncxx1)
+```
+
+If you want to run SQL-only mode:
+
+```bash
 g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3
 ```
 
-## Build - With MongoDB
-
-1. Install the [MongoDB C++ driver](https://github.com/mongodb/mongo-cxx-driver) using the [official installation guide](https://www.mongodb.com/docs/languages/cpp/cpp-driver/current/get-started/).
-2. In **Atlas**, add your public IP to the **Network Access**.
-3. Set the provided `MONGODB_URI` as an environment variable.
-
 Notes:
+
 - If the `MONGODB_URI` is unset or malformed, the program runs in SQL-only mode.
 - MongoDB operation statuses are only reported in the console and do not interrupt the main workflow.
 - MongoDB changes are only attempted after the corresponding SQLite operation succeeds.
-
-Compile from root:
-
-```bash
-g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3 $(pkg-config --cflags --libs libmongocxx1 libbsoncxx1)
-```
 
 ## Run the program
 

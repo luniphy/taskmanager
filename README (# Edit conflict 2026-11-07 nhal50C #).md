@@ -1,0 +1,199 @@
+[![CD](https://github.com/luniphy/taskmanager/actions/workflows/cd.yml/badge.svg)](https://github.com/luniphy/taskmanager/actions/workflows/cd.yml)
+![C++](https://img.shields.io/badge/C++-%2300599C.svg?logo=c%2B%2B&logoColor=white)
+[![SQLite](https://img.shields.io/badge/SQLite-%2307405e.svg?logo=sqlite&logoColor=white)](https://sqlite.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?&logo=docker&logoColor=white)](https://hub.docker.com/r/luniphy/taskmanager)
+[![GHCR](https://img.shields.io/badge/GHCR-181717?logo=github)](https://github.com/luniphy/taskmanager/pkgs/container/taskmanager)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+# Task Manager
+
+A small console based task manager app that stores tasks in **SQLite** and can optionally mirror to **MongoDB Atlas**. This is a learning project to practice object-oriented programming, enums, user input handling and SQL/NoSQL integration.
+
+### Example
+
+```text
+--------------------------------------------------------------------------
+Tasks:
+
+Title: job interview, Category: work, Due Date: 25-09-2026, Priority: High, Status: Open
+Title: haircut, Category: private, Due Date: 17-10-2026, Priority: Medium, Status: Open
+Title: christmas presents, Category: private, Due Date: 23-12-2026, Priority: High, Status: In Progress
+Title: business meeting, Category: work, Due Date: 07-05-2026, Priority: Low, Status: Done
+--------------------------------------------------------------------------
+
+
+**************************************************************************
+Task Manager:
+1: List available Tasks
+2: Add Task
+3: Remove Task
+4: Find Task
+5: Change Priority/Status
+6: Filter by Category
+7: Filter by Priority
+8: Filter by Status
+9: Sort Tasks
+0: End
+
+-> 
+```
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Build](#build)
+- [Build - With MongoDB](#build---with-mongodb)
+- [Run the Program](#run-the-program)
+- [Docker](#docker)
+- [License](#license)
+
+## Overview
+
+The app manages tasks in a local **SQLite** database. It allows users to create, view, find, update, remove, filter and sort tasks. When **MongoDB** is configured, successful changes are mirrored to an **Atlas** collection.
+
+## Features
+
+- **List tasks** – Display all tasks stored in the database.
+- **Add task** – Create a task by entering a (unique) title, category, due date, priority & status.
+- **Remove task** – Delete an existing task.
+- **Find task** – Search for a task by title.
+- **Change priority / status** – Update the priority (`Low` / `Medium` / `High`) or status (`Open` / `InProgress` / `Done`) of a task.
+- **Filter by category / priority / status** – Show only tasks that belong to a certain category, priority or status.
+- **Sort tasks** – Sort tasks by title, category, priority or status.
+- **Date validation** – Due dates are validated including leap-years.
+- **Input cancellation** - Every prompt allows to cancel and return to the main menu.
+- **JSON export** – Export tasks to `data/tasks.json`.
+- **SQLite database** - Stores tasks in `data/tasks_sql.db`.
+- **MongoDB Atlas (optional)** – Mirrors successful add, remove and update operations to an **Atlas** collection.
+- **SQLite-only mode** – Works without MongoDB if the driver isn't installed (detected at compile time) or the URI is not configured.
+- **Continuous Deployment (CD)**: Automated image pushes to Docker Hub / GHCR with vulnerability scan.
+
+## Project structure
+
+```
+taskmanager/
+├─ .github/workflows/cd.yml     # CD workflow
+├─ data/
+│  ├─ tasks_sql.db              # SQLite database
+│  └─ tasks.json                # JSON export
+├─ src/
+│  ├─ main.cpp                  # CLI, menu loop, input validation & JSON export.
+│  ├─ task.cpp                  # Task class & conversion functions.
+│  ├─ task.hpp                  # Declaration of the Task class.
+│  ├─ taskmanager.cpp           # Implements SQLite and MongoDB operations.
+│  └─ taskmanager.hpp           # Declaration of the Taskmanager class.
+├─ Dockerfile
+├─ LICENSE
+└─ README.md
+```
+
+## Requirements
+
+SQLite development files are required for the build.
+
+- On **Debian**-based systems, install `libsqlite3-dev`.
+
+<br>
+
+For **MongoDB**:
+
+1. Install the [MongoDB C++ driver](https://github.com/mongodb/mongo-cxx-driver) using the [official installation guide](https://www.mongodb.com/docs/languages/cpp/cpp-driver/current/get-started/).
+2. In **Atlas**, add your public IP to the **Network Access**.
+3. Set the provided `MONGODB_URI` as an environment variable.
+
+## Build
+
+Clone the repository:
+
+```bash
+git clone https://github.com/luniphy/taskmanager.git
+```
+
+Compile from root:
+
+```bash
+g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3
+```
+
+## Build - With MongoDB
+
+Compile from root:
+
+```bash
+g++ -std=c++17 src/main.cpp src/task.cpp src/taskmanager.cpp -o src/main -lsqlite3 \
+$(pkg-config --cflags --libs libmongocxx1 libbsoncxx1)
+```
+
+Notes:
+- If the `MONGODB_URI` is unset or malformed, the program runs in SQL-only mode.
+- MongoDB operation statuses are only reported in the console and do not interrupt the main workflow.
+- MongoDB changes are only attempted after the corresponding SQLite operation succeeds.
+
+## Run the program
+
+From root:
+
+```bash
+./src/main
+```
+
+## Docker
+
+A Dockerfile is included to provide a reproducible runtime environment.
+
+### Build the image
+
+From the repository root, build the Docker image with:
+
+```bash
+docker build -t taskmanager .
+```
+
+### Pull from Docker Hub / GHCR
+
+Prebuilt images are also available on [Docker Hub](https://hub.docker.com/r/luniphy/taskmanager):
+
+```bash
+docker pull luniphy/taskmanager:latest
+```
+
+And on the [GitHub Container Registry](https://github.com/luniphy/taskmanager/pkgs/container/taskmanager):
+
+```bash
+docker pull ghcr.io/luniphy/taskmanager:latest
+```
+
+### Run the container
+
+If you want to use **MongoDB Atlas**, provide the `MONGODB_URI` as a flag:
+
+```bash
+docker run --rm -it \
+  -v $(pwd)/data:/app/data \
+  -e MONGODB_URI="**ENTER URI HERE**" \
+  taskmanager
+```
+
+You can also run in SQL-only mode:
+
+```bash
+docker run --rm -it \
+  -v $(pwd)/data:/app/data \
+  taskmanager
+```
+
+### Notes
+
+- To run pulled images, use `luniphy/taskmanager` or `ghcr.io/luniphy/taskmanager` respectively.
+- Run the container in interactive mode: `-it`
+- The volume mount preserves the database and JSON file in the local `data/` directory after the container stops.
+- Ensure that your public IP is allowed on the **Atlas Network Access** list when using MongoDB.
+- The `MONGODB_URI` usually goes like: `"mongodb+srv://USERNAME:PASSWORD@cluster0.CLUSTERID.mongodb.net"`
+
+## License
+
+MIT © [luniphy](https://github.com/luniphy)
